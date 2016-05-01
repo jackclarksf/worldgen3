@@ -61,12 +61,17 @@ class World:
             elif i in water_list:
                 water_neighbour_count += 1
 
-        if input_coord in water_list and land_neighbour_count > 4:
+        if input_coord in water_list and water_neighbour_count > 3:
+            pass
+        elif input_coord in land_list and land_neighbour_count > 3:
+            pass
+
+        elif input_coord in water_list and land_neighbour_count > 4:
             water_list.remove(input_coord)
             land_list.append(input_coord)
-        #elif input_coord in land_list and water_neighbour_count > 4:
-        #    land_list.remove(input_coord)
-        #    water_list.append(input_coord)
+        elif input_coord in land_list and water_neighbour_count > 4:
+            land_list.remove(input_coord)
+            water_list.append(input_coord)
 
 
         #print("{} has {} neighbouring water tiles and {} neighbouring land tiles".format(input_coord, land_neighbour_count, water_neighbour_count))

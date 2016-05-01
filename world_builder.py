@@ -28,11 +28,12 @@ class World:
 
     ##### NEIGHBOUR SECTION
 
-    def category_neighbour_sweep(self, category_to_check, other_category_to_check):
-        for i in category_to_check:
-            self.neighbour_checking(i, other_category_to_check, category_to_check)
+    def category_neighbour_sweep(self, land_category, water_category):
+        for i in self.world_coordinates():
+            self.neighbour_checking(i, land_category, water_category)
+        print("^____U____^")
 
-    def neighbour_checking(self, input_coord, list_to_check, list_to_remove):
+    def neighbour_checking(self, input_coord, land_list, water_list):
         upper_left = input_coord[0]-1, input_coord[1]-1
         left = input_coord[0]-1, input_coord[1]
         bottom_left = input_coord[0]-1, input_coord[1]+1
@@ -46,26 +47,32 @@ class World:
 
         check_list = [upper_left, left, bottom_left, up, down, upper_right, right, bottom_right]
 
-        neighbour_count = 0
+        land_neighbour_count = 0
+        water_neighbour_count = 0
+
+        if input_coord in land_list:
+            our_type = land_list
+        else:
+            our_type = water_list
 
         for i in check_list:
-            if i in list_to_check:
-                neighbour_count += 1
+            if i in land_list:
+                land_neighbour_count += 1
+            elif i in water_list:
+                water_neighbour_count += 1
 
-        #print("{} has {} neighbouring water tiles".format(input_coord, neighbour_count))
+        if input_coord in water_list and land_neighbour_count > 4:
+            water_list.remove(input_coord)
+            land_list.append(input_coord)
+        #elif input_coord in land_list and water_neighbour_count > 4:
+        #    land_list.remove(input_coord)
+        #    water_list.append(input_coord)
 
-        if neighbour_count > 6:
-            print("Removing {}".format(input_coord))
-            list_to_remove.remove(input_coord)
-            list_to_check.append(input_coord)
 
-        elif neighbour_count == 3:
-            pos_neighbours = [x for x in check_list if x not in list_to_check]
-            actual_neighbours = [x for x in pos_neighbours if x in self.world_coordinates()]
-            if len(actual_neighbours) > 0:
-                our_decision = random.choice(actual_neighbours)
-                list_to_remove.remove(our_decision)
-                list_to_check.append(our_decision)
+        #print("{} has {} neighbouring water tiles and {} neighbouring land tiles".format(input_coord, land_neighbour_count, water_neighbour_count))
+
+
+
 
 
 

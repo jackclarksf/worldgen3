@@ -11,11 +11,35 @@ class World:
         self.x = int(x)
         self.y = int(y)
         self.noise_scatter()
-        #self.category_neighbour_sweep(self.initial_seed_land)
+        iter_count = 0
+
+        while len(self.initial_seed_land) < (((len(self.world_coordinates()))/2)+ (self.x/4)):
+            print(len(self.initial_seed_land))
+            print((len(self.world_coordinates()))/2)
+            self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
+            self.add_noise_to_list(self.initial_seed_water, self.initial_seed_land)
+            iter_count += 1
+        print("That took: {}".format(iter_count))
+
+        if iter_count < 3:
+            self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
+            iter_count += 1
+
+        print("That took: {}".format(iter_count))
 
     def world_coordinates(self):
         w_coord = list(product(range(self.x), range(self.y)))
         return w_coord
+
+    ####NOISE FUNCTIONS
+
+    def add_noise_to_list(self, possible_coordinates, list_to_add_to):
+        choices = [0, 1, 2, 3, 4, 5]
+        for i in possible_coordinates:
+            fill_chance = random.choice(choices)
+            if fill_chance == 5:
+                possible_coordinates.remove(i)
+                list_to_add_to.append(i)
 
     def noise_scatter(self):
         our_choices = [0, 1]
@@ -31,7 +55,6 @@ class World:
     def category_neighbour_sweep(self, land_category, water_category):
         for i in self.world_coordinates():
             self.neighbour_checking(i, land_category, water_category)
-        print("^____U____^")
 
     def neighbour_checking(self, input_coord, land_list, water_list):
         upper_left = input_coord[0]-1, input_coord[1]-1

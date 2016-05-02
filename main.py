@@ -9,10 +9,14 @@ class Game:
         self.world = World(size, size)
         self.world_map = [[" " for i in range(size)] for i in range(size)]
 
-    def iterate_map(self):
+    def iterate_map(self, times):
         land = self.world.initial_seed_land
         water = self.world.initial_seed_water
-        self.world.category_neighbour_sweep(land, water)
+        i = 0
+        while i < times:
+            self.world.category_neighbour_sweep(land, water)
+            self.world.add_noise_to_list(land, water)
+            i += 1
 
     def paint_map(self):
         land = self.world.initial_seed_land
@@ -30,15 +34,6 @@ class Game:
 
 game_world = Game()
 
-game_world.paint_map()
-game_world.print_map()
-game_world.iterate_map()
-game_world.paint_map()
-game_world.print_map()
-game_world.iterate_map()
-game_world.paint_map()
-game_world.print_map()
-game_world.iterate_map()
 game_world.paint_map()
 game_world.print_map()
 

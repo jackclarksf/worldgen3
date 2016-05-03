@@ -1,6 +1,6 @@
 __author__ = 'iamja_000'
 
-from itertools import product
+from itertools import product, starmap
 import random
 from timeit import Timer
 
@@ -31,7 +31,9 @@ class World:
         w_coord = list(product(range(self.x), range(self.y)))
         return w_coord
 
-    ####NOISE FUNCTIONS
+    ####INITIALIZATION SECTION
+
+    #NOISE FUNCTIONS
 
     def add_noise_to_list(self, possible_coordinates, list_to_add_to):
         choices = [0, 1, 2, 3, 4, 5]
@@ -52,31 +54,23 @@ class World:
 
     ##### NEIGHBOUR SECTION
 
+    def get_neighbours_specifiable(self, x_coord, y_coord, radius):
+        r_list = []
+        for i in range(-radius, radius+1):
+            r_list.append(i)
+        cells = starmap(lambda a,b: (x_coord+a, y_coord+b), product((r_list), (r_list)))
+        return list(cells)[1:]
+
     def category_neighbour_sweep(self, land_category, water_category):
         for i in self.world_coordinates():
             self.neighbour_checking(i, land_category, water_category)
 
     def neighbour_checking(self, input_coord, land_list, water_list):
-        upper_left = input_coord[0]-1, input_coord[1]-1
-        left = input_coord[0]-1, input_coord[1]
-        bottom_left = input_coord[0]-1, input_coord[1]+1
 
-        up = input_coord[0], input_coord[1]-1
-        down = input_coord[0], input_coord[1]+1
-
-        upper_right = input_coord[0]+1, input_coord[1]-1
-        right = input_coord[0]+1, input_coord[1]
-        bottom_right = input_coord[0]+1, input_coord[1]+1
-
-        check_list = [upper_left, left, bottom_left, up, down, upper_right, right, bottom_right]
+        check_list = self.get_neighbours_specifiable(input_coord[0], input_coord[1], 1)
 
         land_neighbour_count = 0
         water_neighbour_count = 0
-
-        if input_coord in land_list:
-            our_type = land_list
-        else:
-            our_type = water_list
 
         for i in check_list:
             if i in land_list:
@@ -95,9 +89,6 @@ class World:
         elif input_coord in land_list and water_neighbour_count > 4:
             land_list.remove(input_coord)
             water_list.append(input_coord)
-
-
-        #print("{} has {} neighbouring water tiles and {} neighbouring land tiles".format(input_coord, land_neighbour_count, water_neighbour_count))
 
 
 

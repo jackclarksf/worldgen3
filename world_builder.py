@@ -27,6 +27,10 @@ class World:
 
         print("That took: {}".format(iter_count))
 
+        get_a_map = self.map_display_list()
+        #self.base_flood_fill_algorithm(get_a_map, 0, 4, " ", "$")
+        print("Total number of rooms: {}".format(self.count_rooms(get_a_map)))
+
     def world_coordinates(self):
         w_coord = list(product(range(self.x), range(self.y)))
         return w_coord
@@ -91,10 +95,44 @@ class World:
             water_list.append(input_coord)
 
 
+    def map_display_list(self):
+        world_map = [[" " for i in range(self.x)] for i in range(self.y)]
+        for i in self.initial_seed_land:
+            world_map[i[1]][i[0]] = " "
+        for i in self.initial_seed_water:
+            world_map[i[1]][i[0]] = "W"
+        return world_map
+
+    def base_flood_fill_algorithm(self, world_map, x, y, old_character, new_character):
+
+        if world_map[y][x] != old_character:
+            return
+        world_map[y][x] = new_character
 
 
+        if x > 0: # left
+            self.base_flood_fill_algorithm(world_map, x-1, y, old_character, new_character)
 
+        if y > 0: # up
+            self.base_flood_fill_algorithm(world_map, x, y-1, old_character, new_character)
 
+        if x < self.x-1: # right
+            self.base_flood_fill_algorithm(world_map, x+1, y, old_character, new_character)
+
+        if y < self.y-1: # down
+            self.base_flood_fill_algorithm(world_map, x, y+1, old_character, new_character)
+
+    def count_rooms(self, world_map):
+        roomCount = 0
+        for x in range(self.x):
+            for y in range(self.y):
+                if world_map[y][x] == " ":
+                    self.base_flood_fill_algorithm(world_map, x, y, " ", "$")
+
+                    roomCount += 1
+        for i in world_map:
+            print(i)
+        return roomCount
 
 
 

@@ -151,8 +151,8 @@ class WorldMap:
         global_coord = self.world_coordinates()
         our_length = len(global_coord)
         our_water_radius = round(our_length/6)
-        for i in global_coord[our_water_radius:our_length-our_water_radius]:
-            print(i)
+        #for i in global_coord[our_water_radius:our_length-our_water_radius]:
+            #print(i)
         #NEXT STEP, USE THIS TO CREATE HOLES IN IT ETC
 
 

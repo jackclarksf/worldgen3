@@ -22,25 +22,31 @@ class WorldMap:
             self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
             self.add_noise_to_list(self.initial_seed_water, self.initial_seed_land)
             iter_count += 1
-        print("That took: {}".format(iter_count))
 
         if iter_count < 3:
             self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
             iter_count += 1
 
         print("That took: {}".format(iter_count))
+        print("Trying our borders now")
+        self.border_creator(self.world_coordinates(), self.initial_seed_land, self.initial_seed_water)
 
         get_a_map = self.map_display_list()
         #self.base_flood_fill_algorithm(get_a_map, 0, 4, " ", "$")
         room_count = self.count_rooms(get_a_map)
         print("Total number of rooms: {}".format(room_count))
-        #while room_count > self.x/2:
-        #    print("Fuzzing")
-        #    get_a_map = self.map_display_list()
-        #    self.add_noise_to_list(self.initial_seed_water, self.initial_seed_land)
-        #    room_count = self.count_rooms(get_a_map)
-        #    print("Room count now: {}".format(room_count))
         self.hole_punch()
+        while room_count > 8:
+            self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
+            get_a_map = self.map_display_list()
+            room_count = self.count_rooms(get_a_map)
+            print("Room count now: {}".format(room_count))
+            iter_count += 1
+            if iter_count > 10:
+                self.add_noise_to_list(self.initial_seed_water, self.initial_seed_land)
+                iter_count -= 10
+        print("That took: {}".format(iter_count))
+
 
         #return self.map_display_list()
 
@@ -48,7 +54,21 @@ class WorldMap:
         w_coord = list(product(range(self.x), range(self.y)))
         return w_coord
 
-    ####INITIALIZATION SECTION
+    def border_creator(self, world_co, land_list, water_list):
+        the_new_borders = []
+        for i in world_co:
+            a, b, = i
+            if a == 0:
+                the_new_borders.append(i)
+            elif b == 0:
+                the_new_borders.append(i)
+            elif a == self.x-1:
+                the_new_borders.append(i)
+            elif b == self.y-1:
+                the_new_borders.append(i)
+        land_list = [x for x in land_list if x not in the_new_borders]
+        water_list.extend(the_new_borders)
+
 
     #NOISE FUNCTIONS
 

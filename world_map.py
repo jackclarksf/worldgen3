@@ -66,7 +66,7 @@ class WorldMap:
                 the_new_borders.append(i)
             elif b == self.y-1:
                 the_new_borders.append(i)
-        land_list = [x for x in land_list if x not in the_new_borders]
+        self.initial_seed_land = [x for x in land_list if x not in the_new_borders]
         water_list.extend(the_new_borders)
 
 

@@ -23,14 +23,19 @@ class World:
     def city_scatter(self, number_of_cities):
         i = 0
         while i < number_of_cities:
-            city_locations_and_neighbours = self.get_all_entity_neighbours(self.cities, 2)
-            possible_coordinate = random.choice([x for x in self.initial_seed_land if x not in city_locations_and_neighbours])
-            while possible_coordinate in city_locations_and_neighbours:
-                possible_coordinate = random.choice(self.initial_seed_land)
+            city_locations_and_neighbours = self.get_all_entity_neighbours(self.cities, 3)
+            too_much_water_coord = []
+            for j in self.initial_seed_land:
+                near_water = (self.neighbour_type_check_return(j[0], j[1], 1, self.initial_seed_water))
+                if ((len(near_water))+1)>4:
+                    too_much_water_coord.append(j)
+            land_options1 = [x for x in self.initial_seed_land if x not in too_much_water_coord]
+            land_options = [x for x in land_options1 if x not in city_locations_and_neighbours]
+            possible_coordinate = random.choice(land_options)
+            print("Pos coordinate chosen = {}".format(possible_coordinate))
             self.cities.append(City(possible_coordinate[0], possible_coordinate[1], possible_coordinate[0], possible_coordinate[1]))
             i += 1
         self.paint_map_with_entities(self.our_world_map)
-        #NEXT STEP = ADD AWARENESS OF CITY SPACE/BORDER
 
     def get_entity_locations(self, entity_type):
         coordinate_list = []

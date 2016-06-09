@@ -8,7 +8,7 @@ class Game:
         self.tick = 0
         self.world = World(size, size)
         self.world_map = [[" " for i in range(size)] for i in range(size)]
-        self.world_real_map = self.world.map_get()
+        self.world_real_map = self.world.alt_map_get()
 
     def paint_map(self):
         land = self.world.initial_seed_land
@@ -25,6 +25,13 @@ class Game:
     def alt_print(self):
         for i in self.world_real_map:
             print(i)
+
+    def tick_forward(self):
+        print("DOG")
+
+
+    def map_step(self):
+        self.tick_forward()
 
 
 

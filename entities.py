@@ -23,3 +23,17 @@ class City:
 
     def add_age(self):
         self.age += 1
+
+class Scout:
+    def __init__(self, x, y, origin_a, origin_b):
+        self.x = x
+        self.y = y
+        self.x0 = origin_a
+        self.y0 = origin_b
+
+    def get_location(self):
+        return self.x, self.y
+
+    def return_city_origin(self):
+        return self.x0, self.y0
+

@@ -30,13 +30,29 @@ class World:
             world_map[i[1]][i[0]] = " "
         for i in self.initial_seed_water:
             world_map[i[1]][i[0]] = "W"
-        for i in self.cities:
-            j = i.get_location()
-            world_map[j[1]][j[0]] = "C"
         for i in self.scouts:
             j = i.get_location()
             world_map[j[1]][j[0]] = "S"
+        path_list = self.scout_path_list()
+        for i in path_list:
+            x, y = i
+            world_map[y][x] = "P"
+        for i in self.cities:
+            j = i.get_location()
+            world_map[j[1]][j[0]] = "C"
         return world_map
+
+    def scout_path_list(self):
+        self.meta_paths = []
+        for i in self.scouts:
+            the_path = list(i.return_paths())
+            slim_path = list(set(the_path))
+            self.meta_paths.extend(slim_path)
+        slimmed_meta = list(set(self.meta_paths))
+        neatened = sorted(slimmed_meta)
+        return neatened
+
+
 
     def get_room_size(self, map_to_check, x, y, old_character, new_character, count):
 
@@ -122,9 +138,7 @@ class World:
         for i in self.cities:
             loc = i.get_location()
             pos_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_land)
-            print("Loc: {}".format(loc))
             pos_points.remove(loc)
-            print("Pos choices: {}".format(pos_points))
             our_scout = random.choice(pos_points)
             self.scouts.append(Scout(our_scout[0], our_scout[1], loc[0], loc[1]))
 
@@ -135,6 +149,7 @@ class World:
             i_loc = i.get_location()
             pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
             if len(pos_moves) > 0:
+                i.paths_taken.append(i_loc)
                 our_move = random.choice(pos_moves)
                 i.x = our_move[0]
                 i.y = our_move[1]

@@ -30,6 +30,10 @@ class Scout:
         self.y = y
         self.x0 = origin_a
         self.y0 = origin_b
+        self.paths_taken = []
+
+    def return_paths(self):
+        return self.paths_taken
 
     def get_location(self):
         return self.x, self.y

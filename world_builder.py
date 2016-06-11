@@ -6,6 +6,8 @@ from timeit import Timer
 from world_map import WorldMap
 from entities import City, Scout
 
+##IMPLEMENT A WAY TO COUNT SIZE OF ROOMS SO AS TO AVOID PUTTING CITIES IN WEIRD SPOTS
+
 class World:
     def __init__(self, x, y):
         self.x = int(x)
@@ -36,6 +38,27 @@ class World:
             world_map[j[1]][j[0]] = "S"
         return world_map
 
+    def get_room_size(self, map_to_check, x, y, old_character, new_character, count):
+
+        if map_to_check[y][x] != old_character:
+            total_length = len(count)
+            print("Weirdo length = {}".format(total_length))
+            return total_length
+        map_to_check[y][x] = new_character
+        count.append(new_character)
+
+        if x > 0: # left
+            self.get_room_size(map_to_check, x-1, y, old_character, new_character, count)
+
+        if y > 0: # up
+            self.get_room_size(map_to_check, x, y-1, old_character, new_character, count)
+
+        if x < self.x-1: # right
+            self.get_room_size(map_to_check, x+1, y, old_character, new_character, count)
+
+        if y < self.y-1: # down
+            self.get_room_size(map_to_check, x, y+1, old_character, new_character, count)
+
 
     def city_scatter(self, number_of_cities):
         i = 0
@@ -51,12 +74,14 @@ class World:
             if len(land_options) > 0:
                 possible_coordinate = random.choice(land_options)
                 print("Pos coordinate chosen = {}".format(possible_coordinate))
+                #island_size = self.get_room_size(self.our_world_map, possible_coordinate[0], possible_coordinate[1], " ", "$", [])
+                #print("Size of island: {}".format(len(island_size)))
                 self.cities.append(City(possible_coordinate[0], possible_coordinate[1], possible_coordinate[0], possible_coordinate[1]))
                 i += 1
             else:
                 print("Done")
                 i += 1
-        self.paint_map_with_entities(self.our_world_map)
+        #self.paint_map_with_entities(self.our_world_map)
 
     def get_entity_locations(self, entity_type):
         coordinate_list = []
@@ -103,6 +128,16 @@ class World:
             our_scout = random.choice(pos_points)
             self.scouts.append(Scout(our_scout[0], our_scout[1], loc[0], loc[1]))
 
+######MOVEMENT FUNCTIONS
+
+    def scout_movement(self):
+        for i in self.scouts:
+            i_loc = i.get_location()
+            pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
+            if len(pos_moves) > 0:
+                our_move = random.choice(pos_moves)
+                i.x = our_move[0]
+                i.y = our_move[1]
 
 
 #####MOVEMENT FUNCTIONS

@@ -31,6 +31,8 @@ class Scout:
         self.x0 = origin_a
         self.y0 = origin_b
         self.paths_taken = []
+        start_loc = self.x, self.y
+        self.paths_taken.append(start_loc)
 
     def return_paths(self):
         return self.paths_taken

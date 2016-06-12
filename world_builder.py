@@ -142,17 +142,57 @@ class World:
             our_scout = random.choice(pos_points)
             self.scouts.append(Scout(our_scout[0], our_scout[1], loc[0], loc[1]))
 
+####LOCATION FUNCTIONS
+    def location_list(self, entity_type):
+        entity_list = []
+        for i in entity_type:
+            loc = i.get_location()
+            entity_list.append(loc)
+        return entity_list
+
 ######MOVEMENT FUNCTIONS
+        #EACH MOVEMENT FUNCTION MUST BE ACCOMPANIED BY A CITY SCOUTING FUNCTION
 
     def scout_movement(self):
         for i in self.scouts:
             i_loc = i.get_location()
             pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
+            self.scout_scanner(i, i_loc)
+            #CITY SCANNER GOES HERE
             if len(pos_moves) > 0:
                 i.paths_taken.append(i_loc)
                 our_move = random.choice(pos_moves)
                 i.x = our_move[0]
                 i.y = our_move[1]
+
+    def scout_scanner(self, scout, scout_location):
+        #GET CITY LOCATIONS
+        city_locations = self.location_list(self.cities)
+        print("Scout scanner {}".format(city_locations))
+        #CHECK IF A CITY COORDINATE IS NEARBY
+        potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, city_locations)
+        print("Possible cities: {}".format(potential_collision))
+        if len(potential_collision) > 0:
+            collision_coordinate = potential_collision[0][0], potential_collision[0][1]
+            print("City location: {}".format(collision_coordinate))
+        #IF NEARBY, CHECK SCOUT ORIGIN AGAINST CITY
+            origin = scout.x0, scout.y0
+            print("Scout origin: {}".format(origin))
+            if origin in potential_collision:
+                print("Duplicate...removing")
+                potential_collision.remove(origin)
+                print("Collisions now: {}".format(potential_collision))
+                if len(potential_collision) > 0:
+                    print("Looks like we are good to go!")
+                    self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
+                    print("Killing scout at location {} {}".format(scout.x, scout.y))
+                    self.scouts.remove(scout)
+            else:
+                print("Looks like we are good to go!")
+                self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
+                print("Killing scout at location {} {}".format(scout.x, scout.y))
+                self.scouts.remove(scout)
+
 
 
 #####MOVEMENT FUNCTIONS

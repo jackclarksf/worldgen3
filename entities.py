@@ -44,11 +44,22 @@ class Scout:
         return self.x0, self.y0
 
 class Road:
+
+    def __init__(self, x, y, origin_a, origin_b, end_city_location, path_log):
+        Scout.__init__(self, x, y, origin_a, origin_b)
+        self.end_city = end_city_location
+        self.original_path = path_log
+
+    def return_end_city(self):
+        return self.end_city
+
+    def return_original_path(self):
+        return self.original_path
     ###make road inherit scout attributes
     ##give road end point as well (scout final location)
     #give road origin city
     ##give road final city
-    ##have road epose functionality to check length of original scout path +
+    ##have road expose functionality to check length of original scout path +
     ##player writes a list that checks length of route via random exploration against length of route in paths taken
     ##goes to smallest one (checks for convergence)
     ##draws road (connected to start and origin cities. Roads can have entities that have a start point and end point of that road.
@@ -56,5 +67,5 @@ class Road:
     ##entities have a bias for longer routes as they carry more value
     ##entities move and shift random (1-2) per turn
     ##entities speed grows slowly as cities age
-    
+
 

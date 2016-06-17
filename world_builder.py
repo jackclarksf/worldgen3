@@ -14,6 +14,7 @@ class World:
         self.y = int(y)
         self.cities = []
         self.scouts = []
+        self.roads = []
         self.our_map = WorldMap(x, y)
         self.our_world_map = self.our_map.map_display_list()
         self.initial_seed_land = self.our_map.initial_seed_land
@@ -142,8 +143,6 @@ class World:
             our_scout = random.choice(pos_points)
             self.scouts.append(Scout(our_scout[0], our_scout[1], loc[0], loc[1]))
 
-    def road_spawn(self):
-        #####
 
 ####LOCATION FUNCTIONS
     def location_list(self, entity_type):
@@ -152,6 +151,11 @@ class World:
             loc = i.get_location()
             entity_list.append(loc)
         return entity_list
+
+    def return_object_from_location(self, entity_type, location_a, location_b):
+        for i in entity_type:
+            if i.get_location() == (location_a, location_b):
+                return i
 
 ######MOVEMENT FUNCTIONS
         #EACH MOVEMENT FUNCTION MUST BE ACCOMPANIED BY A CITY SCOUTING FUNCTION
@@ -177,7 +181,11 @@ class World:
         #print("Possible cities: {}".format(potential_collision))
         if len(potential_collision) > 0:
             collision_coordinate = potential_collision[0][0], potential_collision[0][1]
-            #print("City location: {}".format(collision_coordinate))
+            print("City location: {}".format(collision_coordinate))
+            potential_city = self.return_object_from_location(self.cities, collision_coordinate[0], collision_coordinate[1])
+            orig_a, orig_b = potential_city.return_city_origin()
+            print("City origination point: {} {}".format(orig_a, orig_b))
+
         #IF NEARBY, CHECK SCOUT ORIGIN AGAINST CITY
             origin = scout.x0, scout.y0
             #print("Scout origin: {}".format(origin))
@@ -189,6 +197,12 @@ class World:
                     #print("Looks like we are good to go!")
                     self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
                     #print("Killing scout at location {} {}".format(scout.x, scout.y))
+                    print("Creating a road here, son!")
+                    our_paths = list(scout.return_paths())
+                    slimmed_path = list(set(our_paths))
+                    print("Scout paths: {}".format(slimmed_path))
+                    #FIND PATH ENTITY CLOSEST TO LOCATION
+                    #self.roads.append((Road()))
                     self.scouts.remove(scout)
             else:
                 print("Looks like we are good to go!")

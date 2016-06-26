@@ -49,6 +49,7 @@ class Road:
         Scout.__init__(self, x, y, origin_a, origin_b)
         self.end_city = end_city_location
         self.original_path = path_log
+        print("Road born at AT X: {} Y: {} \n connecting city X: {} Y: {} with city {}".format(self.x, self.y, origin_a, origin_b, end_city_location))
 
     def return_end_city(self):
         return self.end_city

@@ -28,7 +28,7 @@ class Game:
             print(i)
 
     def tick_forward(self):
-        print("DOG")
+        print(" ")
         self.tick += 1
 
 
@@ -42,7 +42,7 @@ class Game:
 
 game_world = Game()
 
-while game_world.tick < 20:
+while game_world.tick < 40:
     game_world.map_step()
 
 #game_world.paint_map()

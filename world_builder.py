@@ -181,80 +181,34 @@ class World:
     def scout_scanner(self, scout, scout_location):
         #GET CITY LOCATIONS
         city_locations = self.location_list(self.cities)
-        #print("Scout scanner {}".format(city_locations))
-        #CHECK IF A CITY COORDINATE IS NEARBY
         potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, city_locations)
-        #print("Possible cities: {}".format(potential_collision))
         if len(potential_collision) > 0:
             collision_coordinate = potential_collision[0][0], potential_collision[0][1]
-            #print("City location: {}".format(collision_coordinate))
             potential_city = self.return_object_from_location(self.cities, collision_coordinate[0], collision_coordinate[1])
             orig_a, orig_b = potential_city.return_city_origin()
             print("Our potential city has origin: {} {}".format(orig_a, orig_b))
-            #print("City origination point: {} {}".format(orig_a, orig_b))
-
-        #IF NEARBY, CHECK SCOUT ORIGIN AGAINST CITY
             origin = scout.x0, scout.y0
             print("Scout origin: {}".format(origin))
             if origin in potential_collision:
-                #print("Duplicate...removing")
                 potential_collision.remove(origin)
                 print("Collisions now: {}".format(potential_collision))
                 if len(potential_collision) > 0:
-                    #print("Looks like we are good to go!")
                     self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
-                    #print("Killing scout at location {} {}".format(scout.x, scout.y))
-                    print("Creating a road here, son!")
                     our_paths = list(scout.return_paths())
                     slimmed_path = list(set(our_paths))
                     print("Scout paths: {}".format(slimmed_path))
-                    #COULD ALSO RE-IMPLEMENT SIMPLY BY PICKING MOST RECENT PATH, OTHERWISE USE THIS
-                    candidate_road_positions = []
-                    for i in slimmed_path:
-                        if i == (scout.x-1, scout.y):
-                            print("DING1, we have {} which is same as {} {}".format(i, scout.x-1, scout.y))
-                            candidate_road_positions.append((scout.x-1, scout.y))
-                        if i == (scout.x+1, scout.y):
-                            print("DING2, we have {} which is same as {} {}".format(i, scout.x+1, scout.y))
-                            candidate_road_positions.append((scout.x+1, scout.y))
-                        if i == (scout.x, scout.y-1):
-                            print("DING3, we have {} which is same as {} {}".format(i, scout.x, scout.y-1))
-                            candidate_road_positions.append((scout.x, scout.y-1))
-                        if i == (scout.x, scout.y+1):
-                            print("DING4, we have {} which is same as {} {}".format(i, scout.x-1, scout.y+1))
-                            candidate_road_positions.append((scout.x-1, scout.y+1))
-                    road_path_loc = random.choice(candidate_road_positions)
+                    road_location = our_paths[-1]
 
-
-                    self.roads.append((Road(road_path_loc[0], road_path_loc[1], scout.x0, scout.y0, (scout.x, scout.y), slimmed_path)))
+                    self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
                     self.scouts.remove(scout)
             else:
                 print("Looks like we are good to go!")
                 self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
                 our_paths = list(scout.return_paths())
-                test_path =list(set(our_paths))
-                print("Our paths {}".format(our_paths))
-                print("Test path {}".format(test_path))
-                potential_roads = self.road_path_trimmer_2(scout)
-                print("Potential roads: {}".format(potential_roads))
-                potential_roads.remove((scout.x, scout.y))
-                print("Potential roads minus city/scout {}".format(potential_roads))
-                road_location = random.choice(potential_roads)
+                road_location = our_paths[-1]
 
-                self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), test_path)))
-
-
-                print("Killing scout at location {} {}".format(scout.x, scout.y))
+                self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
                 self.scouts.remove(scout)
-
-
-    #ALT ROAD TRIMMER - TAKE SCOUT COORDINATES, SCAN NEARBY LOCATIONS, ELIMINATE TILES WITH CITIES/WATER/OBSTACLES, RETURN THAT LIST
-
-    def road_path_trimmer_2(self, scout):
-        raw_neighbours = self.get_neighbours_specifiable(scout.x, scout.y, 1)
-        cleaned_neighbours = [x for x in raw_neighbours if x not in self.initial_seed_water]
-        print("Cleaned neighbour pool for road location: {}".format(cleaned_neighbours))
-        return cleaned_neighbours
 
 
 

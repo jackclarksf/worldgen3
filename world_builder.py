@@ -15,6 +15,7 @@ class World:
         self.y = int(y)
         self.cities = []
         self.scouts = []
+        self.boats = []
         self.roads = []
         self.our_map = WorldMap(x, y)
         self.our_world_map = self.our_map.map_display_list()
@@ -35,6 +36,9 @@ class World:
         for i in self.scouts:
             j = i.get_location()
             world_map[j[1]][j[0]] = "S"
+        for i in self.boats:
+            boat = i.get_location()
+            world_map[boat[1]][boat[0]] = "B"
         path_list = self.scout_path_list()
         for i in path_list:
             x, y = i
@@ -97,8 +101,6 @@ class World:
             if len(land_options) > 0:
                 possible_coordinate = random.choice(land_options)
                 print("Pos coordinate chosen = {}".format(possible_coordinate))
-                #island_size = self.get_room_size(self.our_world_map, possible_coordinate[0], possible_coordinate[1], " ", "$", [])
-                #print("Size of island: {}".format(len(island_size)))
                 self.cities.append(City(possible_coordinate[0], possible_coordinate[1], possible_coordinate[0], possible_coordinate[1]))
                 i += 1
             else:
@@ -148,6 +150,18 @@ class World:
             pos_points.remove(loc)
             our_scout = random.choice(pos_points)
             self.scouts.append(Scout(our_scout[0], our_scout[1], i.x0, i.y0))
+            pos_water_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_water)
+            if len(pos_water_points) > 0:
+                our_boat = random.choice(pos_water_points)
+                self.boats.append(Scout(our_boat[0], our_boat[1], i.x0, i.y0))
+
+    def return_loc_list_from_class(self, classname):
+        return_path = []
+        for i in classname:
+            loc = i.get_location()
+            return_path.append(loc)
+        return return_path
+
 
 
 ####LOCATION FUNCTIONS
@@ -169,14 +183,25 @@ class World:
     def scout_movement(self):
         for i in self.scouts:
             i_loc = i.get_location()
-            pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
+            pos_cities = self.return_loc_list_from_class(self.cities)
+            scout_origin = i.x0, i.y0
+            pos_cities.remove(scout_origin)
+            #NEARBY CITY EVENT
             self.scout_scanner(i, i_loc)
-            #CITY SCANNER GOES HERE
-            if len(pos_moves) > 0:
-                i.paths_taken.append(i_loc)
-                our_move = random.choice(pos_moves)
-                i.x = our_move[0]
-                i.y = our_move[1]
+            if self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities):
+                print("We got some nearby cities, launching the event chain...")
+            else:
+                print("NO nearby cities, standard movement")
+                pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
+
+                if len(pos_moves) > 0:
+                    i.paths_taken.append(i_loc)
+                    our_move = random.choice(pos_moves)
+                    i.x = our_move[0]
+                    i.y = our_move[1]
+
+    def generate_potential_paths(self):
+        print("Continue")
 
     def scout_scanner(self, scout, scout_location):
         #GET CITY LOCATIONS

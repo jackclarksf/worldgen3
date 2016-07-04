@@ -40,6 +40,7 @@ class Scout:
     def get_location(self):
         return self.x, self.y
 
+
     def return_city_origin(self):
         return self.x0, self.y0
 

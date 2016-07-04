@@ -188,8 +188,10 @@ class World:
             pos_cities.remove(scout_origin)
             #NEARBY CITY EVENT
             self.scout_scanner(i, i_loc)
-            if self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities):
+            potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities)
+            if len(potentials) > 0:
                 print("We got some nearby cities, launching the event chain...")
+                self.city_distance_scanner(i, potentials)
             else:
                 print("NO nearby cities, standard movement")
                 pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
@@ -200,8 +202,17 @@ class World:
                     i.x = our_move[0]
                     i.y = our_move[1]
 
-    def generate_potential_paths(self):
-        print("Continue")
+    def city_distance_scanner(self, scout_entity, possible_cities):
+        for i in possible_cities:
+            self.generate_potential_paths(scout_entity, i)
+
+    def generate_potential_paths(self, original_entity, city_location):
+        print("generating potential paths between scout and city at: {}".format(city_location))
+        path_so_far = original_entity.return_paths()
+        origination_point = original_entity.return_city_origin()
+        trimmed_path = list(set(path_so_far))
+        print(trimmed_path)
+        print(origination_point)
 
     def scout_scanner(self, scout, scout_location):
         #GET CITY LOCATIONS

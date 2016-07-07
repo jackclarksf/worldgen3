@@ -215,6 +215,7 @@ class World:
         def path_scoring_loop(path_to_score, start_location, end_location):
             list(start_location)
             list(path_to_score)
+            test_route_dictionary = { }
             for i in path_to_score:
                 actual_distance_a = abs(i[0] - start_location[0])
                 actual_distance_b = abs(i[1] - start_location[1])
@@ -228,6 +229,23 @@ class World:
                 merged_movement_distance =abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
                 print(movement_distance)
                 print(merged_movement_distance)
+                our_final_score = merged_distance + merged_movement_distance
+                print(our_final_score)
+                test_route_dictionary[i] = our_final_score
+            print(test_route_dictionary)
+
+        while end_location not in open_list:
+            test_route_dictionary = {}
+            for i in open_list:
+                actual_distance = abs(i[0] - start_location[0]), abs(i[1] - start_location[1])
+                merged_distance = actual_distance[0] + actual_distance[1]
+                movement_distance = abs(start_location[0] - end_location[0]), abs(start_location[1] - end_location[1])
+                merged_movement_distance =abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
+                our_final_score = merged_distance + merged_movement_distance
+                print(our_final_score)
+                test_route_dictionary[i] = our_final_score
+            print(test_route_dictionary)
+
 
 
         path_scoring_loop(open_list, start_location, end_location)

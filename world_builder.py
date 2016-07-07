@@ -63,30 +63,6 @@ class World:
         neatened = sorted(slimmed_meta)
         return neatened
 
-
-
-    def get_room_size(self, map_to_check, x, y, old_character, new_character, count):
-
-        if map_to_check[y][x] != old_character:
-            total_length = len(count)
-            print("Weirdo length = {}".format(total_length))
-            return total_length
-        map_to_check[y][x] = new_character
-        count.append(new_character)
-
-        if x > 0: # left
-            self.get_room_size(map_to_check, x-1, y, old_character, new_character, count)
-
-        if y > 0: # up
-            self.get_room_size(map_to_check, x, y-1, old_character, new_character, count)
-
-        if x < self.x-1: # right
-            self.get_room_size(map_to_check, x+1, y, old_character, new_character, count)
-
-        if y < self.y-1: # down
-            self.get_room_size(map_to_check, x, y+1, old_character, new_character, count)
-
-
     def city_scatter(self, number_of_cities):
         i = 0
         while i < number_of_cities:
@@ -106,7 +82,6 @@ class World:
             else:
                 print("Done")
                 i += 1
-        #self.paint_map_with_entities(self.our_world_map)
 
     def get_entity_locations(self, entity_type):
         coordinate_list = []
@@ -155,14 +130,6 @@ class World:
                 our_boat = random.choice(pos_water_points)
                 self.boats.append(Scout(our_boat[0], our_boat[1], i.x0, i.y0))
 
-    def return_loc_list_from_class(self, classname):
-        return_path = []
-        for i in classname:
-            loc = i.get_location()
-            return_path.append(loc)
-        return return_path
-
-
 
 ####LOCATION FUNCTIONS
     def location_list(self, entity_type):
@@ -183,7 +150,7 @@ class World:
     def scout_movement(self):
         for i in self.scouts:
             i_loc = i.get_location()
-            pos_cities = self.return_loc_list_from_class(self.cities)
+            pos_cities = self.location_list(self.cities)
             scout_origin = i.x0, i.y0
             pos_cities.remove(scout_origin)
             #NEARBY CITY EVENT
@@ -191,7 +158,8 @@ class World:
             potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities)
             if len(potentials) > 0:
                 print("We got some nearby cities, launching the event chain...")
-                self.city_distance_scanner(i, potentials)
+                #self.city_distance_scanner(i, potentials)
+                self.routefinding(scout_origin, potentials[0])
             else:
                 print("NO nearby cities, standard movement")
                 pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
@@ -207,12 +175,65 @@ class World:
             self.generate_potential_paths(scout_entity, i)
 
     def generate_potential_paths(self, original_entity, city_location):
-        print("generating potential paths between scout and city at: {}".format(city_location))
         path_so_far = original_entity.return_paths()
         origination_point = original_entity.return_city_origin()
+        print("generating potential paths between {} and city at: {}".format(origination_point, city_location))
         trimmed_path = list(set(path_so_far))
         print(trimmed_path)
-        print(origination_point)
+        print(len(trimmed_path))
+        #MEASURE DISTANCE BETWEEN ORIGINATION AND TARGET.
+        distance_between_a = abs(origination_point[0] - city_location[0])
+        distance_between_b = abs(origination_point[1] - city_location[1])
+        print(distance_between_a, distance_between_b)
+        start_point = list(origination_point)
+        city_location_test = list(city_location)
+        temp_list = []
+        while start_point != city_location_test:
+            print(start_point)
+            pos_moves = self.neighbour_type_check_return(start_point[0], start_point[1], 1, self.initial_seed_land)
+            if len(pos_moves) > 0:
+                move_to_make = random.choice(pos_moves)
+                start_point[0] = move_to_make[0]
+                start_point[1] = move_to_make[1]
+                temp_list.append(move_to_make)
+        print(temp_list)
+        print(len(temp_list))
+        ####SO THIS IS GLORIOUSLY INEFFICIENT
+        ####INSTEAD, WE SHOULD BUILD ROUTE_FINDING LOGIC FOR THE SCOUT, THEN USE THAT
+
+#REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
+    def routefinding(self, start_location, end_location):
+        print("Checking between {} and {}".format(start_location, end_location))
+        open_list = []
+        closed_list = []
+        closed_list.append(start_location)
+        open_list.extend(self.neighbour_type_check_return(start_location[0], start_location[1], 1, self.initial_seed_land))
+        open_list.remove(start_location)
+        print(closed_list)
+        print(open_list)
+
+        def path_scoring_loop(path_to_score, start_location, end_location):
+            list(start_location)
+            list(path_to_score)
+            for i in path_to_score:
+                actual_distance_a = abs(i[0] - start_location[0])
+                actual_distance_b = abs(i[1] - start_location[1])
+                combined_distance = actual_distance_a, actual_distance_b
+                print("Distance: {}".format(combined_distance))
+                #measure that punishes diagonals
+                merged_distance = actual_distance_a + actual_distance_b
+                print("Merged distance: {}".format(merged_distance))
+
+                movement_distance = abs(start_location[0] - end_location[0]), abs(start_location[1] - end_location[1])
+                merged_movement_distance =abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
+                print(movement_distance)
+                print(merged_movement_distance)
+
+
+        path_scoring_loop(open_list, start_location, end_location)
+
+
+    #IMPLEMENT THE A* ALGORITHM
 
     def scout_scanner(self, scout, scout_location):
         #GET CITY LOCATIONS

@@ -204,51 +204,38 @@ class World:
 #REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
     def routefinding(self, start_location, end_location):
         print("Checking between {} and {}".format(start_location, end_location))
+        tuckaway = start_location
         open_list = []
         closed_list = []
         closed_list.append(start_location)
-        open_list.extend(self.neighbour_type_check_return(start_location[0], start_location[1], 1, self.initial_seed_land))
-        open_list.remove(start_location)
-        print(closed_list)
-        print(open_list)
 
-        def path_scoring_loop(path_to_score, start_location, end_location):
-            list(start_location)
-            list(path_to_score)
-            test_route_dictionary = { }
-            for i in path_to_score:
-                actual_distance_a = abs(i[0] - start_location[0])
-                actual_distance_b = abs(i[1] - start_location[1])
-                combined_distance = actual_distance_a, actual_distance_b
-                print("Distance: {}".format(combined_distance))
-                #measure that punishes diagonals
-                merged_distance = actual_distance_a + actual_distance_b
-                print("Merged distance: {}".format(merged_distance))
-
-                movement_distance = abs(start_location[0] - end_location[0]), abs(start_location[1] - end_location[1])
-                merged_movement_distance =abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
-                print(movement_distance)
-                print(merged_movement_distance)
-                our_final_score = merged_distance + merged_movement_distance
-                print(our_final_score)
-                test_route_dictionary[i] = our_final_score
-            print(test_route_dictionary)
-
-        while end_location not in open_list:
+        while end_location not in closed_list:
             test_route_dictionary = {}
+            print("Testing location: {}".format(start_location))
+            open_list.extend(self.neighbour_type_check_return(start_location[0], start_location[1], 1, self.initial_seed_land))
+            open_list.remove(start_location)
+            open_list = list(set(open_list))
+            print("Open list is: {}".format(open_list))
             for i in open_list:
-                actual_distance = abs(i[0] - start_location[0]), abs(i[1] - start_location[1])
-                merged_distance = actual_distance[0] + actual_distance[1]
-                movement_distance = abs(start_location[0] - end_location[0]), abs(start_location[1] - end_location[1])
-                merged_movement_distance =abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
-                our_final_score = merged_distance + merged_movement_distance
-                print(our_final_score)
-                test_route_dictionary[i] = our_final_score
-            print(test_route_dictionary)
-
-
-
-        path_scoring_loop(open_list, start_location, end_location)
+                if i in closed_list:
+                    continue
+                else:
+                    merged_distance = abs(i[0] - start_location[0]) + abs(i[1] - start_location[1])
+                    merged_movement_distance = abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
+                    our_final_score = merged_distance + merged_movement_distance
+                    test_route_dictionary[i] = our_final_score
+            print("Test route dictionary is: {}".format(test_route_dictionary))
+            min_val = min(test_route_dictionary.values())
+            pos_values = [k for k, v in test_route_dictionary.items() if v == min_val]
+            print("Low val options: {}".format(pos_values))
+            potential_route = random.choice(pos_values)
+            print("Chosen option: {}".format(potential_route))
+            closed_list.append(potential_route)
+            open_list.remove(potential_route)
+            if start_location in test_route_dictionary:
+                del test_route_dictionary[start_location]
+            start_location = potential_route
+        print("Checked between {} and {} \n route: {}".format(tuckaway, end_location, closed_list))
 
 
     #IMPLEMENT THE A* ALGORITHM

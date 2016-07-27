@@ -157,11 +157,9 @@ class World:
             self.scout_scanner(i, i_loc)
             potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities)
             if len(potentials) > 0:
-                print("We got some nearby cities, launching the event chain...")
-                #self.city_distance_scanner(i, potentials)
-                self.routefinding(scout_origin, potentials[0])
+                self.city_distance_scanner(i, potentials)
+                #self.routefinding(scout_origin, potentials[0])
             else:
-                print("NO nearby cities, standard movement")
                 pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
 
                 if len(pos_moves) > 0:
@@ -171,35 +169,30 @@ class World:
                     i.y = our_move[1]
 
     def city_distance_scanner(self, scout_entity, possible_cities):
-        for i in possible_cities:
-            self.generate_potential_paths(scout_entity, i)
+        our_city = random.choice(possible_cities)
+        self.generate_potential_paths(scout_entity, our_city)
 
     def generate_potential_paths(self, original_entity, city_location):
-        path_so_far = original_entity.return_paths()
-        origination_point = original_entity.return_city_origin()
-        print("generating potential paths between {} and city at: {}".format(origination_point, city_location))
-        trimmed_path = list(set(path_so_far))
-        print(trimmed_path)
-        print(len(trimmed_path))
-        #MEASURE DISTANCE BETWEEN ORIGINATION AND TARGET.
-        distance_between_a = abs(origination_point[0] - city_location[0])
-        distance_between_b = abs(origination_point[1] - city_location[1])
-        print(distance_between_a, distance_between_b)
-        start_point = list(origination_point)
-        city_location_test = list(city_location)
-        temp_list = []
-        while start_point != city_location_test:
-            print(start_point)
-            pos_moves = self.neighbour_type_check_return(start_point[0], start_point[1], 1, self.initial_seed_land)
-            if len(pos_moves) > 0:
-                move_to_make = random.choice(pos_moves)
-                start_point[0] = move_to_make[0]
-                start_point[1] = move_to_make[1]
-                temp_list.append(move_to_make)
-        print(temp_list)
-        print(len(temp_list))
-        ####SO THIS IS GLORIOUSLY INEFFICIENT
-        ####INSTEAD, WE SHOULD BUILD ROUTE_FINDING LOGIC FOR THE SCOUT, THEN USE THAT
+        entity_location = original_entity.get_location()
+        print("generating potential paths between scout at {} and city at: {}".format(entity_location, city_location))
+        actual_distance_a = abs(entity_location[0] - city_location[0])
+        actual_distance_b = abs(entity_location[1] - city_location[1])
+        pos_moves = self.neighbour_type_check_return(entity_location[0], entity_location[1], 1, self.initial_seed_land)
+        for i in pos_moves:
+            move_distance_a = abs(i[0] - city_location[0])
+            move_distance_b = abs(i[1] - city_location[1])
+            if move_distance_a < actual_distance_a:
+                original_entity.paths_taken.append(entity_location)
+                original_entity.x = i[0]
+            elif move_distance_b < actual_distance_b:
+                original_entity.paths_taken.append(entity_location)
+                original_entity.y = i[1]
+            else:
+                print("Got no candidates")
+        print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
+
+
+
 
 #REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
     def routefinding(self, start_location, end_location):

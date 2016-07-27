@@ -16,7 +16,7 @@ class WorldMap:
         self.noise_scatter()
         iter_count = 0
 
-        while len(self.initial_seed_land) < (((len(self.world_coordinates()))/2)+ (self.x/4)):
+        while len(self.initial_seed_land) < (((len(self.world_coordinates()))/2) + (len(self.world_coordinates())/4)):
             print(len(self.initial_seed_land))
             print((len(self.world_coordinates()))/2)
             self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
@@ -36,11 +36,12 @@ class WorldMap:
         room_count = self.count_rooms(get_a_map)
         print("Total number of rooms: {}".format(room_count))
         self.hole_punch()
-        while room_count > 8:
+        while room_count > 6:
             self.category_neighbour_sweep(self.initial_seed_land, self.initial_seed_water)
             get_a_map = self.map_display_list()
             room_count = self.count_rooms(get_a_map)
             print("Room count now: {}".format(room_count))
+            #MAYBE ADD SOMETHING TO RANDOMLY DELETE SOME WATER AND REPLACE WITH LAND?
             iter_count += 1
             if iter_count > 10:
                 self.add_noise_to_list(self.initial_seed_water, self.initial_seed_land)

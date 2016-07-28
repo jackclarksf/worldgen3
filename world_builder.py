@@ -20,6 +20,7 @@ class World:
         self.our_map = WorldMap(x, y)
         self.our_world_map = self.our_map.map_display_list()
         self.initial_seed_land = self.our_map.initial_seed_land
+        self.initial_seed_land1 = [[" " for i in range(self.x)] for i in range(self.x)]
         self.initial_seed_water = self.our_map.initial_seed_water
         self.city_scatter(round(self.x/3))
         self.city_spawn()
@@ -83,18 +84,6 @@ class World:
                 print("Done")
                 i += 1
 
-    def get_entity_locations(self, entity_type):
-        coordinate_list = []
-        for i in entity_type:
-            coordinate = i.get_location()
-            coordinate_list.append(coordinate)
-        return coordinate_list
-
-    def paint_map_with_entities(self, map_to_paint):
-        city_locs = self.get_entity_locations(self.cities)
-        for i in city_locs:
-            self.our_world_map[i[1]][i[0]] = "C"
-
 #### NEIGHBOUR FUNCTIONS
 
     def get_all_entity_neighbours(self, entity_list, radius):
@@ -132,6 +121,7 @@ class World:
 
 
 ####LOCATION FUNCTIONS
+
     def location_list(self, entity_type):
         entity_list = []
         for i in entity_type:
@@ -150,10 +140,9 @@ class World:
     def scout_movement(self):
         for i in self.scouts:
             i_loc = i.get_location()
-            pos_cities = self.location_list(self.cities)
             scout_origin = i.x0, i.y0
+            pos_cities = self.location_list(self.cities)
             pos_cities.remove(scout_origin)
-            #NEARBY CITY EVENT
             self.scout_scanner(i, i_loc)
             potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities)
             if len(potentials) > 0:
@@ -170,9 +159,9 @@ class World:
 
     def city_distance_scanner(self, scout_entity, possible_cities):
         our_city = random.choice(possible_cities)
-        self.generate_potential_paths(scout_entity, our_city)
+        self.move_toward_city(scout_entity, our_city)
 
-    def generate_potential_paths(self, original_entity, city_location):
+    def move_toward_city(self, original_entity, city_location):
         entity_location = original_entity.get_location()
         print("generating potential paths between scout at {} and city at: {}".format(entity_location, city_location))
         actual_distance_a = abs(entity_location[0] - city_location[0])
@@ -190,8 +179,6 @@ class World:
             else:
                 print("Got no candidates")
         print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
-
-
 
 
 #REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
@@ -238,8 +225,8 @@ class World:
         city_locations = self.location_list(self.cities)
         potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, city_locations)
         if len(potential_collision) > 0:
-            collision_coordinate = potential_collision[0][0], potential_collision[0][1]
-            potential_city = self.return_object_from_location(self.cities, collision_coordinate[0], collision_coordinate[1])
+            our_collision = random.choice(potential_collision)
+            potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
             orig_a, orig_b = potential_city.return_city_origin()
             print("Our potential city has origin: {} {}".format(orig_a, orig_b))
             origin = scout.x0, scout.y0
@@ -248,7 +235,7 @@ class World:
                 potential_collision.remove(origin)
                 print("Collisions now: {}".format(potential_collision))
                 if len(potential_collision) > 0:
-                    self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
+                    self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
                     our_paths = list(scout.return_paths())
                     slimmed_path = list(set(our_paths))
                     print("Scout paths: {}".format(slimmed_path))
@@ -258,7 +245,7 @@ class World:
                     self.scouts.remove(scout)
             else:
                 print("Looks like we are good to go!")
-                self.cities.append((City(scout.x, scout.y, collision_coordinate[0], collision_coordinate[1])))
+                self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
                 our_paths = list(scout.return_paths())
                 road_location = our_paths[-1]
 
@@ -267,7 +254,14 @@ class World:
 
 
 
-#####MOVEMENT FUNCTIONS
+#####SMART ROUTE FUNCTIONS
+
+
+####TRY TO IMPLEMENT A PATH_FINDER_FOR_ROAD
+###GOAL, TAKE IN A POSITION AND A TARGET AND OUTPUT AN OPTIMAL PATH THAT RESPECTS WATER
+
+def smart_path_finder(our_location, our_desired_location):
+    print("Dog")
 
 
 

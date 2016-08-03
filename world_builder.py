@@ -57,8 +57,7 @@ class World:
     def scout_path_list(self):
         self.meta_paths = []
         for i in self.scouts:
-            the_path = list(i.return_paths())
-            slim_path = list(set(the_path))
+            slim_path = list(set(i.return_paths()))
             self.meta_paths.extend(slim_path)
         slimmed_meta = list(set(self.meta_paths))
         neatened = sorted(slimmed_meta)
@@ -112,9 +111,10 @@ class World:
             loc = i.get_location()
             pos_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_land)
             pos_points.remove(loc)
-            our_scout = random.choice(pos_points)
-            self.scouts.append(Scout(our_scout[0], our_scout[1], i.x0, i.y0))
-            pos_water_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_water)
+            if len(pos_points) > 0:
+                our_scout = random.choice(pos_points)
+                self.scouts.append(Scout(our_scout[0], our_scout[1], i.x0, i.y0))
+                pos_water_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_water)
             if len(pos_water_points) > 0:
                 our_boat = random.choice(pos_water_points)
                 self.boats.append(Scout(our_boat[0], our_boat[1], i.x0, i.y0))
@@ -145,9 +145,9 @@ class World:
             pos_cities.remove(scout_origin)
             self.scout_scanner(i, i_loc)
             potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities)
+            #get city origins and remove ones with same origin as scout
             if len(potentials) > 0:
                 self.city_distance_scanner(i, potentials)
-                #self.routefinding(scout_origin, potentials[0])
             else:
                 pos_moves = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.initial_seed_land)
 
@@ -163,7 +163,7 @@ class World:
 
     def move_toward_city(self, original_entity, city_location):
         entity_location = original_entity.get_location()
-        print("generating potential paths between scout at {} and city at: {}".format(entity_location, city_location))
+        print("generating potential paths between scout at {} with origin {} {} and city at: {}".format(entity_location, original_entity.x0, original_entity.y0, city_location))
         actual_distance_a = abs(entity_location[0] - city_location[0])
         actual_distance_b = abs(entity_location[1] - city_location[1])
         pos_moves = self.neighbour_type_check_return(entity_location[0], entity_location[1], 1, self.initial_seed_land)
@@ -179,7 +179,6 @@ class World:
             else:
                 print("Got no candidates")
         print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
-
 
 #REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
     def routefinding(self, start_location, end_location):
@@ -221,36 +220,24 @@ class World:
     #IMPLEMENT THE A* ALGORITHM
 
     def scout_scanner(self, scout, scout_location):
-        #GET CITY LOCATIONS
         city_locations = self.location_list(self.cities)
         potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, city_locations)
+        origin = scout.x0, scout.y0
+        if origin in potential_collision:
+            potential_collision.remove(origin)
         if len(potential_collision) > 0:
             our_collision = random.choice(potential_collision)
             potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
             orig_a, orig_b = potential_city.return_city_origin()
-            print("Our potential city has origin: {} {}".format(orig_a, orig_b))
-            origin = scout.x0, scout.y0
-            print("Scout origin: {}".format(origin))
-            if origin in potential_collision:
-                potential_collision.remove(origin)
-                print("Collisions now: {}".format(potential_collision))
-                if len(potential_collision) > 0:
-                    self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
-                    our_paths = list(scout.return_paths())
-                    slimmed_path = list(set(our_paths))
-                    print("Scout paths: {}".format(slimmed_path))
-                    road_location = our_paths[-1]
-
-                    self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
-                    self.scouts.remove(scout)
-            else:
-                print("Looks like we are good to go!")
-                self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
-                our_paths = list(scout.return_paths())
-                road_location = our_paths[-1]
-
-                self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
-                self.scouts.remove(scout)
+            self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
+            our_paths = list(scout.return_paths())
+            slimmed_path = list(set(our_paths))
+            print("Scout paths: {}".format(our_paths))
+            print("Slimmed scout paths: {}".format(slimmed_path))
+            road_location = our_paths[-1]
+            self.smart_path_finder((scout.x0, scout.y0), (scout_location[0], scout_location[1]))
+            self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
+            self.scouts.remove(scout)
 
 
 
@@ -260,10 +247,15 @@ class World:
 ####TRY TO IMPLEMENT A PATH_FINDER_FOR_ROAD
 ###GOAL, TAKE IN A POSITION AND A TARGET AND OUTPUT AN OPTIMAL PATH THAT RESPECTS WATER
 
-def smart_path_finder(our_location, our_desired_location):
-    print("Dog")
+    def smart_path_finder(self, our_location, our_desired_location):
+        our_route = []
+        print("Route finding against {} going to {}".format(our_location, our_desired_location))
+        our_route.append(our_location)
+        print("Routes: {}".format(our_route))
 
 
+
+#something pretty screw happening here
 
 
 

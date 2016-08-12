@@ -5,6 +5,7 @@ import random
 from timeit import Timer
 from world_map import WorldMap
 from entities import City, Scout, Road
+import implementation
 
 #CITY ORIGIN LOOP IS FUCKED UP, SON
 ##IMPLEMENT A WAY TO COUNT SIZE OF ROOMS SO AS TO AVOID PUTTING CITIES IN WEIRD SPOTS
@@ -236,6 +237,11 @@ class World:
             print("Slimmed scout paths: {}".format(slimmed_path))
             road_location = our_paths[-1]
             self.smart_path_finder((scout.x0, scout.y0), (scout_location[0], scout_location[1]))
+            our_main_map = implementation.GridWithWeights(self.x, self.y)
+            our_main_map_walls = self.initial_seed_land
+            came_from, cost_so_far = implementation.dijkstra_search(our_main_map, (road_location[0], road_location[1]), (scout.x0, scout.y0))
+            print("Standard paths: {}".format(our_paths))
+            print("New paths: {}".format(implementation.reconstruct_path(came_from, start=(road_location[0], road_location[1]), goal=(scout.x0, scout.y0))))
             self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
             self.scouts.remove(scout)
 

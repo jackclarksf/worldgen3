@@ -10,30 +10,6 @@ import collections
 # utility functions for dealing with square grids
 
 #TASK - WORK OUT NEW INPUT/OUTPUT. WORKS BY FEEDING IN LAND/WATER AND SCOUT START AND CITY END AND OUTPUTTING PATH
-def from_id_width(id, width):
-    return (id % width, id // width)
-
-def draw_tile(graph, id, style, width):
-    r = "."
-    if 'number' in style and id in style['number']: r = "%d" % style['number'][id]
-    if 'point_to' in style and style['point_to'].get(id, None) is not None:
-        (x1, y1) = id
-        (x2, y2) = style['point_to'][id]
-        if x2 == x1 + 1: r = "\u2192"
-        if x2 == x1 - 1: r = "\u2190"
-        if y2 == y1 + 1: r = "\u2193"
-        if y2 == y1 - 1: r = "\u2191"
-    if 'start' in style and id == style['start']: r = "A"
-    if 'goal' in style and id == style['goal']: r = "Z"
-    if 'path' in style and id in style['path']: r = "@"
-    if id in graph.walls: r = "#" * width
-    return r
-
-def draw_grid(graph, width=2, **style):
-    for y in range(graph.height):
-        for x in range(graph.width):
-            print("%%-%ds" % width % draw_tile(graph, (x, y), style, width), end="")
-        print()
 
 # data from main article
 class SquareGrid:
@@ -41,14 +17,14 @@ class SquareGrid:
         self.width = width
         self.height = height
         self.walls = []
-    
+
     def in_bounds(self, id):
         (x, y) = id
         return 0 <= x < self.width and 0 <= y < self.height
-    
+
     def passable(self, id):
         return id not in self.walls
-    
+
     def neighbors(self, id):
         (x, y) = id
         results = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
@@ -156,12 +132,13 @@ def a_star_search(graph, start, goal):
 
 
 came_from, cost_so_far = dijkstra_search(diagram4, (1, 4), (7, 8))
+print(came_from)
+print(cost_so_far)
 
-#draw_grid(diagram4, width=3, point_to=came_from, start=(1, 4), goal=(7, 8))
-#print()
-#draw_grid(diagram4, width=3, number=cost_so_far, start=(1, 4), goal=(7, 8))
-#print()
-#draw_grid(diagram4, width=3, path=reconstruct_path(came_from, start=(1, 4), goal=(7, 8)))
+print(reconstruct_path(came_from, start=(1, 4), goal=(7, 8)))
+
+print("Now trying A star")
+came_from, cost_so_far = a_star_search(diagram4, (1, 4), (7, 8))
 
 print(reconstruct_path(came_from, start=(1, 4), goal=(7, 8)))
 

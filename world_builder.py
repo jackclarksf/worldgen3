@@ -242,7 +242,9 @@ class World:
             came_from, cost_so_far = implementation.dijkstra_search(our_main_map, (road_location[0], road_location[1]), (scout.x0, scout.y0))
             print("Standard paths: {}".format(our_paths))
             print("New paths: {}".format(implementation.reconstruct_path(came_from, start=(road_location[0], road_location[1]), goal=(scout.x0, scout.y0))))
-            self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), our_paths)))
+            optimal_path = implementation.reconstruct_path(came_from, start=(road_location[0], road_location[1]), goal=(scout.x0, scout.y0))
+            print(optimal_path)
+            self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), optimal_path)))
             self.scouts.remove(scout)
 
 

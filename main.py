@@ -45,6 +45,6 @@ game_world = Game()
 while game_world.tick < 60:
     game_world.map_step()
 
-#game_world.paint_map()
+game_world.paint_map()
 #game_world.print_map()
 

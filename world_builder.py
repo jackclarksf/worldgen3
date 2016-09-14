@@ -105,6 +105,24 @@ class World:
         neighbour_list = [x for x in self.get_neighbours_specifiable(x, y, distance_to_check) if x in entity_coordinates]
         return neighbour_list
 
+######OBJECT FUNCTIONS
+
+    def get_object_from_location(self, coordinate_a, coordinate_b, type):
+        for i in type:
+            if i.x == coordinate_a and i.y == coordinate_b:
+                print("We got a definite overlap!")
+                return i
+
+#####city functions
+
+    def city_spawn_check(self):
+        for i in self.cities:
+            if i.growth > 0:
+                i.add_growth()
+            if i.growth > 10:
+                print("Gotta do the spawn!")
+
+
 #####SPAWN FUNCTIONS
 
     def city_spawn(self):
@@ -177,8 +195,8 @@ class World:
             elif move_distance_b < actual_distance_b:
                 original_entity.paths_taken.append(entity_location)
                 original_entity.y = i[1]
-            else:
-                print("Got no candidates")
+            #else:
+                #print("Got no candidates")
         print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
 
 #REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
@@ -221,31 +239,30 @@ class World:
     #IMPLEMENT THE A* ALGORITHM
 
     def scout_scanner(self, scout, scout_location):
-        city_locations = self.location_list(self.cities)
-        potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, city_locations)
+        #city_locations = self.location_list(self.cities)
+        potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, self.location_list(self.cities))
         origin = scout.x0, scout.y0
         if origin in potential_collision:
             potential_collision.remove(origin)
         if len(potential_collision) > 0:
             our_collision = random.choice(potential_collision)
             potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
-            orig_a, orig_b = potential_city.return_city_origin()
             self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
+            our_new_city = self.return_object_from_location(self.cities, scout.x, scout.y)
+            our_new_city.add_growth()
             our_paths = list(scout.return_paths())
             slimmed_path = list(set(our_paths))
             print("Scout paths: {}".format(our_paths))
             print("Slimmed scout paths: {}".format(slimmed_path))
             road_location = our_paths[-1]
-            self.smart_path_finder((scout.x0, scout.y0), (scout_location[0], scout_location[1]))
             our_main_map = implementation.GridWithWeights(self.x, self.y)
             our_main_map_walls = self.initial_seed_land
             came_from, cost_so_far = implementation.dijkstra_search(our_main_map, (road_location[0], road_location[1]), (scout.x0, scout.y0))
-            print("Standard paths: {}".format(our_paths))
-            print("New paths: {}".format(implementation.reconstruct_path(came_from, start=(road_location[0], road_location[1]), goal=(scout.x0, scout.y0))))
             optimal_path = implementation.reconstruct_path(came_from, start=(road_location[0], road_location[1]), goal=(scout.x0, scout.y0))
             print(optimal_path)
             self.roads.append((Road(road_location[0], road_location[1], scout.x0, scout.y0, (scout.x, scout.y), optimal_path)))
             self.scouts.remove(scout)
+            #do the city thing here
 
 
 
@@ -261,9 +278,6 @@ class World:
         our_route.append(our_location)
         print("Routes: {}".format(our_route))
 
-
-
-#something pretty screw happening here
 
 
 

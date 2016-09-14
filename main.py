@@ -35,6 +35,7 @@ class Game:
     def map_step(self):
         #RUN MOVEMENT FUNCTION FOR ALL ENTITIES
         self.world.scout_movement()
+        self.world.city_spawn_check()
         game_world.alt_print()
         self.tick_forward()
 
@@ -42,7 +43,7 @@ class Game:
 
 game_world = Game()
 
-while game_world.tick < 60:
+while game_world.tick < 120:
     game_world.map_step()
 
 game_world.paint_map()

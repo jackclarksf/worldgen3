@@ -13,7 +13,7 @@ class City:
 
     def add_growth(self):
         self.growth += 1
-        #print("ADDED GROWTH to city at {} {} with origin {} {}. Growth now {}".format(self.x, self.y, self.x0, self.y0, self.growth))
+        print("ADDED GROWTH to city at {} {} with origin {} {}. Growth now {}".format(self.x, self.y, self.x0, self.y0, self.growth))
 
     def get_location(self):
         return self.x, self.y

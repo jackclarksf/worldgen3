@@ -150,6 +150,13 @@ class World:
 #if part of a cluster then create a shared origin point
 #
 #
+    def check_origins(self, entity_class):
+        for i in entity_class:
+            our_loc = i.get_location()
+            our_orig = i.return_city_origin()
+            print("City at {} has origin {}".format(our_loc, our_orig))
+
+
     def harmonize_originations(self, entity_class):
         loc_list = []
         for i in entity_class:
@@ -161,14 +168,13 @@ class World:
             orig_a, orig_b = i.return_city_origin()
             neighbors = self.neighbour_type_check_return(x, y, 1, loc_list)
             neighbors.remove((x, y))
-            print("City neighbors of {} with origin {} equals: {}".format((x, y), (orig_a, orig_b), neighbors))
+            #print("City neighbors of {} with origin {} equals: {}".format((x, y), (orig_a, orig_b), neighbors))
             for i in neighbors:
                 i_object = self.get_object_from_location(i[0], i[1], self.cities)
                 i_orig_a, i_orig_b = i_object.return_city_origin()
                 if (i_orig_a, i_orig_b) != (orig_a, orig_b):
-                    print("NO overlap, tweaking...")
-                    i_orig_a = orig_a
-                    i_orig_b = orig_b
+                    i_object.x0 = orig_a
+                    i_object.y0 = orig_b
 
 ####LOCATION FUNCTIONS
 
@@ -213,7 +219,7 @@ class World:
 
     def move_toward_city(self, original_entity, city_location):
         entity_location = original_entity.get_location()
-        print("generating potential paths between scout at {} with origin {} {} and city at: {}".format(entity_location, original_entity.x0, original_entity.y0, city_location))
+        #print("generating potential paths between scout at {} with origin {} {} and city at: {}".format(entity_location, original_entity.x0, original_entity.y0, city_location))
         actual_distance_a = abs(entity_location[0] - city_location[0])
         actual_distance_b = abs(entity_location[1] - city_location[1])
         pos_moves = self.neighbour_type_check_return(entity_location[0], entity_location[1], 1, self.initial_seed_land)
@@ -228,7 +234,7 @@ class World:
                 original_entity.y = i[1]
             #else:
                 #print("Got no candidates")
-        print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
+        #print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
 
 #REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
     def routefinding(self, start_location, end_location):
@@ -279,6 +285,7 @@ class World:
             our_collision = random.choice(potential_collision)
             potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
             self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
+            #WE NEED TO TRANSFER CITY ORIGIN HERE SO THAT NEW CITY INHERITS ORIGIN OF CITY IT IS ATTACHING TO
             our_new_city = self.return_object_from_location(self.cities, scout.x, scout.y)
             our_new_city.add_growth()
             our_paths = list(scout.return_paths())

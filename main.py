@@ -35,6 +35,7 @@ class Game:
     def map_step(self):
         #RUN MOVEMENT FUNCTION FOR ALL ENTITIES
         self.world.scout_movement()
+        self.world.harmonize_originations(self.world.cities)
         self.world.city_spawn_check()
         game_world.alt_print()
         self.tick_forward()

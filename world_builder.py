@@ -41,19 +41,18 @@ class World:
         for i in self.boats:
             boat = i.get_location()
             world_map[boat[1]][boat[0]] = "B"
-        path_list = self.scout_path_list()
-        for i in path_list:
+        for i in self.scout_path_list():
             x, y = i
             world_map[y][x] = "P"
         for i in self.roads:
             p_list = i.return_original_path()
             for i in p_list:
-                x, y = i
-                world_map[y][x] = "R"
+                world_map[i[1]][i[0]] = "R"
         for i in self.cities:
             j = i.get_location()
             world_map[j[1]][j[0]] = "C"
         return world_map
+    #^shorten this function please
 
     def scout_path_list(self):
         self.meta_paths = []
@@ -77,7 +76,6 @@ class World:
             land_options = [x for x in land_options1 if x not in city_locations_and_neighbours]
             if len(land_options) > 0:
                 possible_coordinate = random.choice(land_options)
-                print("Pos coordinate chosen = {}".format(possible_coordinate))
                 self.cities.append(City(possible_coordinate[0], possible_coordinate[1], possible_coordinate[0], possible_coordinate[1]))
                 i += 1
             else:
@@ -110,7 +108,6 @@ class World:
     def get_object_from_location(self, coordinate_a, coordinate_b, type):
         for i in type:
             if i.x == coordinate_a and i.y == coordinate_b:
-                print("We got a definite overlap!")
                 return i
 
 #####city functions
@@ -121,23 +118,57 @@ class World:
                 i.add_growth()
             if i.growth > 10:
                 print("Gotta do the spawn!")
+                self.spawn_function(i)
+                i.growth = 0
 
 
 #####SPAWN FUNCTIONS
 
     def city_spawn(self):
         for i in self.cities:
-            loc = i.get_location()
-            pos_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_land)
-            pos_points.remove(loc)
-            if len(pos_points) > 0:
-                our_scout = random.choice(pos_points)
-                self.scouts.append(Scout(our_scout[0], our_scout[1], i.x0, i.y0))
-                pos_water_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_water)
-            if len(pos_water_points) > 0:
-                our_boat = random.choice(pos_water_points)
-                self.boats.append(Scout(our_boat[0], our_boat[1], i.x0, i.y0))
+            self.spawn_function(i)
+#            pos_water_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_water)
+#            if len(pos_water_points) > 0:
+#                our_boat = random.choice(pos_water_points)
+#                self.boats.append(Scout(our_boat[0], our_boat[1], i.x0, i.y0))
+#fix the boat thing
 
+    def spawn_function(self, entity):
+        loc = entity.get_location()
+        pos_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_land)
+        pos_points.remove(loc)
+        if len(pos_points) > 0:
+            our_scout = random.choice(pos_points)
+            self.scouts.append(Scout(our_scout[0], our_scout[1], entity.x0, entity.y0))
+            print("SCOUT BORN AT {} {} with origin {} {}".format(our_scout[0], our_scout[1], entity.x0, entity.y0))
+
+
+    #should break this up into two functions
+
+#####PROPAGATION FUNCTIONS
+#function to look at city and check if part of a cluster
+#if part of a cluster then create a shared origin point
+#
+#
+    def harmonize_originations(self, entity_class):
+        loc_list = []
+        for i in entity_class:
+            x, y = i.get_location()
+            loc_list.append((x, y))
+        print(loc_list)
+        for i in entity_class:
+            x, y = i.get_location()
+            orig_a, orig_b = i.return_city_origin()
+            neighbors = self.neighbour_type_check_return(x, y, 1, loc_list)
+            neighbors.remove((x, y))
+            print("City neighbors of {} with origin {} equals: {}".format((x, y), (orig_a, orig_b), neighbors))
+            for i in neighbors:
+                i_object = self.get_object_from_location(i[0], i[1], self.cities)
+                i_orig_a, i_orig_b = i_object.return_city_origin()
+                if (i_orig_a, i_orig_b) != (orig_a, orig_b):
+                    print("NO overlap, tweaking...")
+                    i_orig_a = orig_a
+                    i_orig_b = orig_b
 
 ####LOCATION FUNCTIONS
 

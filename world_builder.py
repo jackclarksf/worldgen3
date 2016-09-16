@@ -26,6 +26,12 @@ class World:
         self.city_scatter(round(self.x/3))
         self.city_spawn()
 
+    def print_state(self):
+        city_number = len(self.cities)
+        scout_number = len(self.scouts)
+        road_number = len(self.roads)
+        print("Cities: {}. Scouts: {}. Roads: {}.".format(city_number, scout_number, road_number))
+
     def map_get(self):
         return self.our_world_map
 
@@ -121,6 +127,8 @@ class World:
                 self.spawn_function(i)
                 i.growth = 0
 
+    #function to check if cities within 1 block of eachother have different origin. If so say "MERGING" and create super city.
+
 
 #####SPAWN FUNCTIONS
 
@@ -143,7 +151,6 @@ class World:
             print("SCOUT BORN AT {} {} with origin {} {}".format(our_scout[0], our_scout[1], entity.x0, entity.y0))
 
 
-    #should break this up into two functions
 
 #####PROPAGATION FUNCTIONS
 #function to look at city and check if part of a cluster
@@ -154,27 +161,8 @@ class World:
         for i in entity_class:
             our_loc = i.get_location()
             our_orig = i.return_city_origin()
-            print("City at {} has origin {}".format(our_loc, our_orig))
+            #print("City at {} has origin {}".format(our_loc, our_orig))
 
-
-    def harmonize_originations(self, entity_class):
-        loc_list = []
-        for i in entity_class:
-            x, y = i.get_location()
-            loc_list.append((x, y))
-        print(loc_list)
-        for i in entity_class:
-            x, y = i.get_location()
-            orig_a, orig_b = i.return_city_origin()
-            neighbors = self.neighbour_type_check_return(x, y, 1, loc_list)
-            neighbors.remove((x, y))
-            #print("City neighbors of {} with origin {} equals: {}".format((x, y), (orig_a, orig_b), neighbors))
-            for i in neighbors:
-                i_object = self.get_object_from_location(i[0], i[1], self.cities)
-                i_orig_a, i_orig_b = i_object.return_city_origin()
-                if (i_orig_a, i_orig_b) != (orig_a, orig_b):
-                    i_object.x0 = orig_a
-                    i_object.y0 = orig_b
 
 ####LOCATION FUNCTIONS
 
@@ -236,44 +224,6 @@ class World:
                 #print("Got no candidates")
         #print("Scout location now: {} {}".format(original_entity.x, original_entity.y))
 
-#REIMPEMT THIS ALGORITHM https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
-    def routefinding(self, start_location, end_location):
-        print("Checking between {} and {}".format(start_location, end_location))
-        tuckaway = start_location
-        open_list = []
-        closed_list = []
-        closed_list.append(start_location)
-
-        while end_location not in closed_list:
-            test_route_dictionary = {}
-            print("Testing location: {}".format(start_location))
-            open_list.extend(self.neighbour_type_check_return(start_location[0], start_location[1], 1, self.initial_seed_land))
-            open_list.remove(start_location)
-            open_list = list(set(open_list))
-            print("Open list is: {}".format(open_list))
-            for i in open_list:
-                if i in closed_list:
-                    continue
-                else:
-                    merged_distance = abs(i[0] - start_location[0]) + abs(i[1] - start_location[1])
-                    merged_movement_distance = abs(start_location[0] - end_location[0]) + abs(start_location[1] - end_location[1])
-                    our_final_score = merged_distance + merged_movement_distance
-                    test_route_dictionary[i] = our_final_score
-            print("Test route dictionary is: {}".format(test_route_dictionary))
-            min_val = min(test_route_dictionary.values())
-            pos_values = [k for k, v in test_route_dictionary.items() if v == min_val]
-            print("Low val options: {}".format(pos_values))
-            potential_route = random.choice(pos_values)
-            print("Chosen option: {}".format(potential_route))
-            closed_list.append(potential_route)
-            open_list.remove(potential_route)
-            if start_location in test_route_dictionary:
-                del test_route_dictionary[start_location]
-            start_location = potential_route
-        print("Checked between {} and {} \n route: {}".format(tuckaway, end_location, closed_list))
-
-
-    #IMPLEMENT THE A* ALGORITHM
 
     def scout_scanner(self, scout, scout_location):
         #city_locations = self.location_list(self.cities)
@@ -281,13 +231,23 @@ class World:
         origin = scout.x0, scout.y0
         if origin in potential_collision:
             potential_collision.remove(origin)
+        for i in potential_collision:
+            i_object = self.return_object_from_location(self.cities, i[0], i[1])
+            i_origin = i_object.return_city_origin()
+            if i_origin == origin:
+                print("City at {} has origin {} so deleting".format(i, i_origin))
+                potential_collision.remove(i)
         if len(potential_collision) > 0:
+            print("Checking scout at {} {} with origin {} {} against cities: {}".format(scout_location[0], scout_location[1], scout.x0, scout.y0, potential_collision))
             our_collision = random.choice(potential_collision)
             potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
-            self.cities.append((City(scout.x, scout.y, our_collision[0], our_collision[1])))
-            #WE NEED TO TRANSFER CITY ORIGIN HERE SO THAT NEW CITY INHERITS ORIGIN OF CITY IT IS ATTACHING TO
+            potential_city_origin = potential_city.return_city_origin()
+            self.cities.append((City(scout.x, scout.y, potential_city_origin[0], potential_city_origin[1])))
             our_new_city = self.return_object_from_location(self.cities, scout.x, scout.y)
             our_new_city.add_growth()
+            #add growth to origin city
+            origin_city = self.return_object_from_location(self.cities, scout.x0, scout.y0)
+            origin_city.add_growth()
             our_paths = list(scout.return_paths())
             slimmed_path = list(set(our_paths))
             print("Scout paths: {}".format(our_paths))

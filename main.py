@@ -33,11 +33,10 @@ class Game:
 
 
     def map_step(self):
-        #RUN MOVEMENT FUNCTION FOR ALL ENTITIES
-        #self.world.harmonize_originations(self.world.cities)
         self.world.check_origins(self.world.cities)
         self.world.city_spawn_check()
         self.world.scout_movement()
+        self.world.print_state()
         game_world.alt_print()
         self.tick_forward()
 
@@ -45,7 +44,7 @@ class Game:
 
 game_world = Game()
 
-while game_world.tick < 80:
+while game_world.tick < 200:
     #y_check = input("Tick?")
     #if y_check == "y":
     #    game_world.map_step()

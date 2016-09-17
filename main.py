@@ -45,12 +45,12 @@ class Game:
 game_world = Game()
 
 while game_world.tick < 250:
-    #y_check = input("Tick?")
-    #if y_check == "y":
-    #    game_world.map_step()
+    y_check = input("Tick?")
+    if y_check == "y":
+        game_world.map_step()
     game_world.map_step()
 
-game_world.paint_map()
+#game_world.paint_map()
 #game_world.print_map()
 
 #next big idea needed = how do we stop cities growing perpetually? probably by using nearby resources.

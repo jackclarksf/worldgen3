@@ -4,7 +4,7 @@ from itertools import product, starmap
 import random
 from timeit import Timer
 from world_map import WorldMap
-from entities import City, Scout, Road
+from entities import City, Scout, Road, Land
 import implementation
 
 #CITY ORIGIN LOOP IS FUCKED UP, SON
@@ -21,6 +21,7 @@ class World:
         self.our_map = WorldMap(x, y)
         self.our_world_map = self.our_map.map_display_list()
         self.initial_seed_land = self.our_map.initial_seed_land
+        self.land_objects = self.our_map.object_land
         self.initial_seed_land1 = [[" " for i in range(self.x)] for i in range(self.x)]
         self.initial_seed_water = self.our_map.initial_seed_water
         self.city_scatter(round(self.x/3))

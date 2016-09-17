@@ -6,15 +6,19 @@ __author__ = 'iamja_000'
 from itertools import product, starmap
 import random
 from timeit import Timer
+from entities import Land
 
 class WorldMap:
     def __init__(self, x, y):
-        self.initial_seed_land = []
+        self.object_land = []
+        self.initial_seed_land = self.land_coordinates(self.object_land)
+        #self.initial_seed_land = []
         self.initial_seed_water = []
         self.x = int(x)
         self.y = int(y)
-        self.noise_scatter()
         iter_count = 0
+
+        self.noise_scatter()
 
         while len(self.initial_seed_land) < (((len(self.world_coordinates()))/2) + (len(self.world_coordinates())/4)):
             print(len(self.initial_seed_land))
@@ -50,6 +54,13 @@ class WorldMap:
 
 
         #return self.map_display_list()
+
+    def land_coordinates(self, entity_list):
+        co_ord = []
+        for i in entity_list:
+            location = i.get_location()
+            co_ord.append(location)
+        return co_ord
 
     def world_coordinates(self):
         w_coord = list(product(range(self.x), range(self.y)))
@@ -87,6 +98,8 @@ class WorldMap:
         for i in our_coordinates:
             if random.choice(our_choices) == 1:
                 self.initial_seed_land.append(i)
+                self.object_land.append(Land(i[0], i[1]))
+                #ATTEMPING LAND ADDITION HERE
             else:
                 self.initial_seed_water.append(i)
 

@@ -1,5 +1,7 @@
 __author__ = 'iamja_000'
 
+import random
+
 class City:
     def __init__(self, x, y, origin_a, origin_b):
         self.x = x
@@ -64,9 +66,10 @@ class Road:
 
 class Land:
     def __init__(self, x, y):
+        energy = [5, 6, 7, 8, 9, 20]
         self.x = x
         self.y = y
-        self.resource = 10
+        self.resource = random.choice(energy)
 
     def get_location(self):
         return self.x, self.y
@@ -74,6 +77,5 @@ class Land:
     def harvest(self):
         self.resource -= 1
 
-    def
 
 

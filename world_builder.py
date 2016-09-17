@@ -127,6 +127,44 @@ class World:
                 self.spawn_function(i)
                 i.growth = 0
 
+    def proximity_check(self):
+        for i in self.cities:
+            i_loc = i.get_location()
+            origin = i.return_city_origin()
+            pos_cities = self.location_list(self.cities)
+            potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 2, pos_cities)
+            for j in potentials:
+                obj = self.return_object_from_location(self.cities, j[0], j[1])
+                obj_origin = obj.return_city_origin()
+                if origin != obj_origin:
+                    print("Alert, city at {} with origin {} is near {} with origin {}".format(i_loc, origin, j, obj_origin))
+                    dominant_origin = self.city_size_check(origin, obj_origin)
+                    print("looks like cities with origin {} outnumber the others".format(dominant_origin))
+                    if obj_origin != dominant_origin:
+                        obj.x0 = dominant_origin[0]
+                        obj.y0 = dominant_origin[1]
+                    elif origin != dominant_origin:
+                        i.x0 = dominant_origin[0]
+                        i.y0 = dominant_origin[1]
+
+    def city_size_check(self, origin_1, origin_2):
+        orig_1_count = 0
+        orig_2_count = 0
+        for i in self.cities:
+            orig = i.return_city_origin()
+            if orig == origin_1:
+                orig_1_count += 1
+            if orig == origin_2:
+                orig_2_count += 1
+        print("{} count: {} /n {} count: {}".format(origin_1, orig_1_count, origin_2, orig_2_count))
+        if orig_1_count > orig_2_count:
+            return origin_1
+        if orig_2_count > orig_1_count:
+            return origin_2
+        else:
+            print("Equal")
+
+
     #function to check if cities within 1 block of eachother have different origin. If so say "MERGING" and create super city.
 
 
@@ -144,7 +182,8 @@ class World:
     def spawn_function(self, entity):
         loc = entity.get_location()
         pos_points = self.neighbour_type_check_return(loc[0], loc[1], 1, self.initial_seed_land)
-        pos_points.remove(loc)
+        if loc in pos_points:
+            pos_points.remove(loc)
         if len(pos_points) > 0:
             our_scout = random.choice(pos_points)
             self.scouts.append(Scout(our_scout[0], our_scout[1], entity.x0, entity.y0))

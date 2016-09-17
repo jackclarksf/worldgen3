@@ -33,7 +33,7 @@ class Game:
 
 
     def map_step(self):
-        self.world.check_origins(self.world.cities)
+        self.world.proximity_check()
         self.world.city_spawn_check()
         self.world.scout_movement()
         self.world.print_state()
@@ -44,7 +44,7 @@ class Game:
 
 game_world = Game()
 
-while game_world.tick < 200:
+while game_world.tick < 250:
     #y_check = input("Tick?")
     #if y_check == "y":
     #    game_world.map_step()
@@ -53,3 +53,6 @@ while game_world.tick < 200:
 game_world.paint_map()
 #game_world.print_map()
 
+#next big idea needed = how do we stop cities growing perpetually? probably by using nearby resources.
+## eg, land has a base resource level of 10 that can be drained by cities.
+#if it drains to zero then it lies fallow for time until it refilles.

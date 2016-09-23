@@ -46,7 +46,7 @@ class Game:
 
 game_world = Game()
 
-while game_world.tick < 100:
+while game_world.tick < 150:
     #y_check = input("Tick?")
     #if y_check == "y":
     #    game_world.map_step()

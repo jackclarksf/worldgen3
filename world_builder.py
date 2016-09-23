@@ -307,21 +307,25 @@ class World:
         #city_locations = self.location_list(self.cities)
         potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, self.location_list(self.cities))
         origin = scout.x0, scout.y0
-        print("Checking scout at: {} with origin {}".format(scout_location, origin))
-        print("Our potential cities to link to: {}".format(potential_collision))
+        #print("Checking scout at: {} with origin {}".format(scout_location, origin))
+        #print("Our potential cities to link to: {}".format(potential_collision))
         if origin in potential_collision:
             potential_collision.remove(origin)
+        p_collision_remove_list = []
         for i in potential_collision:
             i_object = self.return_object_from_location(self.cities, i[0], i[1])
             i_origin = i_object.return_city_origin()
+            #print("City at {} has origin {}".format(i, i_origin))
             if i_origin == origin:
-                print("City at {} has origin {} so deleting".format(i, i_origin))
-                potential_collision.remove(i)
-                print("potential collision now: {}".format(potential_collision))
+                #print("City at {} has origin {} so deleting".format(i, i_origin))
+                p_collision_remove_list.append(i)
+        for i in p_collision_remove_list:
+            potential_collision.remove(i)
+        #print("potential collision now: {}".format(potential_collision))
         if len(potential_collision) > 0:
-            print("potential cities: {}".format(potential_collision))
+            #print("potential cities: {}".format(potential_collision))
             our_collision = random.choice(potential_collision)
-            print("Our chosen city to attach to: {}".format(our_collision))
+            #print("Our chosen city to attach to: {}".format(our_collision))
             potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
             potential_city_origin = potential_city.return_city_origin()
             self.cities.append((City(scout.x, scout.y, potential_city_origin[0], potential_city_origin[1])))
@@ -332,8 +336,8 @@ class World:
             origin_city.add_growth()
             our_paths = list(scout.return_paths())
             slimmed_path = list(set(our_paths))
-            print("Scout paths: {}".format(our_paths))
-            print("Slimmed scout paths: {}".format(slimmed_path))
+            #print("Scout paths: {}".format(our_paths))
+            #print("Slimmed scout paths: {}".format(slimmed_path))
             road_location = our_paths[-1]
             our_main_map = implementation.GridWithWeights(self.x, self.y)
             our_main_map_walls = self.initial_seed_land

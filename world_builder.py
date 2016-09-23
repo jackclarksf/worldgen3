@@ -121,10 +121,11 @@ class World:
 
     def city_spawn_check(self):
         for i in self.cities:
+            our_location = i.get_location()
             if i.growth > 0:
                 i.add_growth()
             if i.growth > 10:
-                print("Gotta do the spawn!")
+                print("Gotta do the spawn with city at {}!".format(our_location))
                 self.spawn_function(i)
                 i.growth = 0
 
@@ -164,6 +165,40 @@ class World:
             return origin_2
         else:
             print("Equal")
+
+    def city_block_check(self, origin_point):
+        potential_neighbors = []
+        for i in self.cities:
+            if i.return_city_origin == origin_point:
+                i_loc = i.get_location()
+                potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 1, self.location_list(self.cities))
+
+    def city_origin_print(self):
+        mega_list = []
+        for i in self.cities:
+            temp_list = []
+            orig = i.return_city_origin()
+            loc = i.get_location()
+            temp_list.append(orig)
+            temp_list.append(loc)
+            mega_list.append(temp_list)
+        mega_list_dict = {}
+        for line in mega_list:
+            if line[0] in mega_list_dict:
+                mega_list_dict[line[0]].append(line[1])
+            else:
+                mega_list_dict[line[0]] = [line[1]]
+        for k, v in mega_list_dict.items():
+            print(k, v)
+
+    def city_location_print(self):
+        city_list = []
+        for i in self.cities:
+            loc = i.get_location()
+            city_list.append(loc)
+        city_list_sorted = sorted(city_list, key=lambda k: [k[0], k[1]])
+        print("Cities...")
+        print(city_list_sorted)
 
 
     #function to check if cities within 1 block of eachother have different origin. If so say "MERGING" and create super city.
@@ -227,7 +262,10 @@ class World:
             scout_origin = i.x0, i.y0
             pos_cities = self.location_list(self.cities)
             pos_cities.remove(scout_origin)
-            self.scout_scanner(i, i_loc)
+            #print("Checking scout at: {} against cities: {}".format(i_loc, pos_cities))
+            if i_loc not in pos_cities:
+                self.scout_scanner(i, i_loc)
+
             potentials = self.neighbour_type_check_return(i_loc[0], i_loc[1], 3, pos_cities)
             #get city origins and remove ones with same origin as scout
             if len(potentials) > 0:
@@ -269,6 +307,8 @@ class World:
         #city_locations = self.location_list(self.cities)
         potential_collision = self.neighbour_type_check_return(scout_location[0], scout_location[1], 1, self.location_list(self.cities))
         origin = scout.x0, scout.y0
+        print("Checking scout at: {} with origin {}".format(scout_location, origin))
+        print("Our potential cities to link to: {}".format(potential_collision))
         if origin in potential_collision:
             potential_collision.remove(origin)
         for i in potential_collision:
@@ -277,9 +317,11 @@ class World:
             if i_origin == origin:
                 print("City at {} has origin {} so deleting".format(i, i_origin))
                 potential_collision.remove(i)
+                print("potential collision now: {}".format(potential_collision))
         if len(potential_collision) > 0:
-            print("Checking scout at {} {} with origin {} {} against cities: {}".format(scout_location[0], scout_location[1], scout.x0, scout.y0, potential_collision))
+            print("potential cities: {}".format(potential_collision))
             our_collision = random.choice(potential_collision)
+            print("Our chosen city to attach to: {}".format(our_collision))
             potential_city = self.return_object_from_location(self.cities, our_collision[0], our_collision[1])
             potential_city_origin = potential_city.return_city_origin()
             self.cities.append((City(scout.x, scout.y, potential_city_origin[0], potential_city_origin[1])))

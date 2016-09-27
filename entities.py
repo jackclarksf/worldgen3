@@ -52,7 +52,12 @@ class Road:
         Scout.__init__(self, x, y, origin_a, origin_b)
         self.end_city = end_city_location
         self.original_path = path_log
+        self.x = x
+        self.y = y
         print("Road born at AT X: {} Y: {} \n connecting city X: {} Y: {} with city {}".format(self.x, self.y, origin_a, origin_b, end_city_location))
+
+    def get_location(self):
+        return self.x, self.y
 
     def return_end_city(self):
         return self.end_city
@@ -66,7 +71,7 @@ class Road:
 
 class Land:
     def __init__(self, x, y):
-        energy = [5, 6, 7, 8, 9, 20]
+        energy = [5, 6, 7, 8, 9, 10]
         self.x = x
         self.y = y
         self.resource = random.choice(energy)

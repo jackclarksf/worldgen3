@@ -37,7 +37,7 @@ class Game:
         self.world.city_spawn_check()
         self.world.scout_movement()
         self.world.print_state()
-        self.world.city_origin_print()
+        #self.world.city_origin_print()
         self.world.city_location_print()
         game_world.alt_print()
         self.tick_forward()
@@ -46,7 +46,7 @@ class Game:
 
 game_world = Game()
 
-while game_world.tick < 150:
+while game_world.tick < 200:
     #y_check = input("Tick?")
     #if y_check == "y":
     #    game_world.map_step()

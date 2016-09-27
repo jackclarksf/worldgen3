@@ -42,9 +42,6 @@ class World:
             world_map[i[1]][i[0]] = " "
         for i in self.initial_seed_water:
             world_map[i[1]][i[0]] = "W"
-        for i in self.scouts:
-            j = i.get_location()
-            world_map[j[1]][j[0]] = "S"
         for i in self.boats:
             boat = i.get_location()
             world_map[boat[1]][boat[0]] = "B"
@@ -58,6 +55,9 @@ class World:
         for i in self.cities:
             j = i.get_location()
             world_map[j[1]][j[0]] = "C"
+        for i in self.scouts:
+            j = i.get_location()
+            world_map[j[1]][j[0]] = "S"
         return world_map
     #^shorten this function please
 
@@ -121,13 +121,21 @@ class World:
 
     def city_spawn_check(self):
         for i in self.cities:
+            i.add_age()
             our_location = i.get_location()
+            our_age = i.age
             if i.growth > 0:
                 i.add_growth()
-            if i.growth > 10:
-                print("Gotta do the spawn with city at {}!".format(our_location))
-                self.spawn_function(i)
-                i.growth = 0
+            if our_age < 20:
+                if i.growth > 10:
+                    print("Gotta do the spawn with city at {} which is {} old!".format(our_location, our_age))
+                    self.spawn_function(i)
+                    i.growth = 0
+            if our_age > 19:
+                if i.growth > 20:
+                    print("Gotta do the spawn with city at {} which is {} old!".format(our_location, our_age))
+                    self.spawn_function(i)
+                    i.growth = 0
 
     def proximity_check(self):
         for i in self.cities:
@@ -201,8 +209,7 @@ class World:
         print(city_list_sorted)
 
 
-    #function to check if cities within 1 block of eachother have different origin. If so say "MERGING" and create super city.
-
+###ITERATION OBJECT FUNCTIONS
 
 #####SPAWN FUNCTIONS
 
